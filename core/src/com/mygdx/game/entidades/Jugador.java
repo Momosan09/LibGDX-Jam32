@@ -18,31 +18,31 @@ import com.mygdx.game.utiles.Render;
 
 public class Jugador extends Entidad {
 
-	private OrthographicCamera camara;
-	private ArrayList<Proyectil> proyectiles = new ArrayList<>();
-
-	
+    private OrthographicCamera camara;
+    private ArrayList<Proyectil> proyectiles = new ArrayList<>();
+    
     public Jugador(Vector2 posicion, float vida, World world, OrthographicCamera camara) {
         super(Recursos.JUGADOR_SPRITESHEET, posicion, vida, world);
         this.camara = camara;
         
-        
-		// Crear el cuerpo del jugador
+        // Crear el cuerpo del jugador
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(this.posicion.x,this.posicion.y);
+        bodyDef.position.set(this.posicion.x, this.posicion.y);
 
         body = world.createBody(bodyDef);
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(6,2);
-        
+        shape.setAsBox(6, 2);  // Ajusta el tamaño del jugador
+
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.filter.categoryBits = 0x0004; // Categoría del enemigo
-        fixtureDef.filter.maskBits = 0x0002; // Puede colisionar con proyectiles
         
+        // Asignar categorías de colisión para el jugador
+        fixtureDef.filter.categoryBits = 0x0004;  // Categoría del jugador
+        fixtureDef.filter.maskBits = 0x0001;      // El jugador puede colisionar con el mapa (0x0001 es la categoría del mapa)
+
         body.createFixture(fixtureDef);
-        shape.dispose();
+        shape.dispose();  // No olvides liberar la memoria después de usar la forma
     }
 
     public void actualizar() {
@@ -71,12 +71,13 @@ public class Jugador extends Entidad {
                 disparar();
             }
 
+            // Configuración de movimiento
             if (movimientoX == 0 && movimientoY == 0) {
                 body.setLinearVelocity(0, 0);
                 direccionActual = Direcciones.QUIETO;
             } else {
                 if (movimientoX != 0 && movimientoY != 0) {
-                    movimientoX *= 0.7071f;
+                    movimientoX *= 0.7071f;  // Ajustar diagonal
                     movimientoY *= 0.7071f;
                 }
                 body.setLinearVelocity(movimientoX, movimientoY);
@@ -97,51 +98,47 @@ public class Jugador extends Entidad {
         }
     }
 
-    
-	private void movimientoCamara() {
-		if(camara != null) {
-			
+    private void movimientoCamara() {
+        if (camara != null) {
             camara.position.set(posicion.x, posicion.y, 0);
             camara.update();
-		}
-	}
-	
-	private void disparar() {
-	    Vector2 direccion = new Vector2(0, 0);
+        }
+    }
 
-	    switch (direccionActual) {
-	        case ARRIBA:
-	            direccion.set(0, 1);
-	            break;
-	        case ABAJO:
-	            direccion.set(0, -1);
-	            break;
-	        case IZQUIERDA:
-	            direccion.set(-1, 0);
-	            break;
-	        case DERECHA:
-	            direccion.set(1, 0);
-	            break;
-	        default:
-	            return;
-	    }
+    private void disparar() {
+        Vector2 direccion = new Vector2(0, 0);
 
-	    Proyectil proyectil = new Proyectil(world, new Vector2(posicion.x, posicion.y), direccion);
-	    proyectiles.add(proyectil);
-	}
+        switch (direccionActual) {
+            case ARRIBA:
+                direccion.set(0, 1);
+                break;
+            case ABAJO:
+                direccion.set(0, -1);
+                break;
+            case IZQUIERDA:
+                direccion.set(-1, 0);
+                break;
+            case DERECHA:
+                direccion.set(1, 0);
+                break;
+            default:
+                return;
+        }
 
+        Proyectil proyectil = new Proyectil(world, new Vector2(posicion.x, posicion.y), direccion);
+        proyectiles.add(proyectil);
+    }
 
-	@Override
-	public void dibujar() {
-	    super.dibujar();
-	    Render.batch.begin();
-	    for (Proyectil proyectil : proyectiles) {
-	    	if(proyectil.getBody() != null) {	    		
-	        // Dibujar cada proyectil en su posición
-	        Render.batch.draw(new Texture(Recursos.PROYECTIL), proyectil.getPosicion().x-32, proyectil.getPosicion().y-32, 64,64);
-	    	}
-	    }
-	    Render.batch.end();
-	}
-
+    @Override
+    public void dibujar() {
+        super.dibujar();
+        Render.batch.begin();
+        for (Proyectil proyectil : proyectiles) {
+            if (proyectil.getBody() != null) {
+                // Dibujar cada proyectil en su posición
+                Render.batch.draw(new Texture(Recursos.PROYECTIL), proyectil.getPosicion().x - 32, proyectil.getPosicion().y - 32, 64, 64);
+            }
+        }
+        Render.batch.end();
+    }
 }

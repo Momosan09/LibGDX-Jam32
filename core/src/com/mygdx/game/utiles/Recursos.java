@@ -13,4 +13,7 @@ public abstract class Recursos {
 	public static String PROYECTIL = "proyectiles/placeholder/proyectil1.png";
 	
 	public static String badlogic = "badlogic.jpg";
+	
+	//Mapas
+	public static String MAPA_0 = "mapas/pasto.png";
 }
