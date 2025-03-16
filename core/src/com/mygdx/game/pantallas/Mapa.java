@@ -3,7 +3,9 @@ package com.mygdx.game.pantallas;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.hud.JuegoHUD;
 import com.mygdx.game.utiles.Recursos;
+import com.mygdx.game.utiles.Tiempo;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -15,13 +17,25 @@ public class Mapa {
     protected Sprite mapa = new Sprite(new Texture(Recursos.MAPA_0));
     protected Body body;
     protected World w;
+    protected JuegoHUD hud;
+	protected Tiempo t;
+	protected long tiempoRestante;
+	private long ultimoMomento;
     
-    public Mapa(World w) {
+    public Mapa(World w, JuegoHUD hud) {
     	this.w = w;
+    	this.hud = hud;
     	crearColisionDerecha();
     	crearColisionIzquierda();
     	crearColisionArriba();
     	crearColisionAbajo();
+    	t = new Tiempo();
+    	t.iniciarContador();
+    }
+    
+    protected void actualizarContador(int restar) {
+    	tiempoRestante = restar - t.obtenerSegundos();
+    	hud.getTiempo().setText(tiempoRestante+"");
     }
     
     

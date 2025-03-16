@@ -10,3 +10,4 @@
     - Modifica estructura del juego
     - Agrega clase Mapa
     - Agrega clase que hereda de mapa, esta es la "zona" en la que el jugador esta, esta zona tiene distintas oleadas
+    - Agrega tiempo para las oleadas

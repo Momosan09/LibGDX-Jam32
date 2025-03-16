@@ -24,48 +24,13 @@ import com.mygdx.game.utiles.Recursos;
 import com.mygdx.game.utiles.Render;
 
 public class Principal extends Game {
-	
-	private Jugador j;
-	private EntradasJugador entradasJ;
-	private JuegoHUD jHUD;
-	
-	
-	//Box2d
-	private World world;
-	private Box2DDebugRenderer box2Debug;
-	
-	//Camaras
-	private OrthographicCamera camaraJugador, camaraHud;
-	
+
 	
 	@Override
 	public void create () {
-		Gdx.input.setInputProcessor(Recursos.muxJuego);
 		
-		this.world = new World(new Vector2(0,0), false);
-		world.setContactListener(new ManejadorColisiones());
-
 		
-		//camaras
-		camaraJugador = new OrthographicCamera(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
-		camaraJugador.setToOrtho(false);
-		camaraJugador.zoom = .4f;
-		
-		camaraHud = new OrthographicCamera(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
-		camaraHud.setToOrtho(false);
-		camaraHud.zoom = .4f;
-		
-		jHUD = new JuegoHUD();
-		
-		j = new Jugador(new Vector2(300,300), 100, world, camaraJugador);
-		entradasJ = new EntradasJugador(j);
-
-		
-		this.box2Debug = new Box2DDebugRenderer();
-		
-		Recursos.muxJuego.addProcessor(entradasJ);
-		
-		this.setScreen(new Oleada2(this, world));
+		this.setScreen(new Juego(this));
 
 	}
 
@@ -73,7 +38,7 @@ public class Principal extends Game {
 	public void render () {
 		ScreenUtils.clear(0, 0, 0, 1);
 		super.render();
-		dibujarBasico();
+
 		
 	}
 	
@@ -85,25 +50,8 @@ public class Principal extends Game {
 	@Override
 	public void resize(int width, int height) {
 		super.resize(width, height);
-		camaraJugador.viewportWidth = width;
-		camaraJugador.viewportHeight = height;
-		camaraJugador.update();	
-		
-		jHUD.resize(width, height);
+
 	}
 	
-	public void dibujarBasico(){
-		 world.step(Gdx.graphics.getDeltaTime(), 6, 2); // Actualiza la física
-		    box2Debug.render(world, camaraJugador.combined);
-		    camaraHud.update();
-			Render.batch.setProjectionMatrix(camaraHud.combined);
-			jHUD.render();
-			
-			camaraJugador.update();
-			Render.batch.setProjectionMatrix(camaraJugador.combined);
-		    j.actualizar(); // Ahora el jugador se mueve en cada frame
-		    j.dibujar();
 
-		    Enemigo.destruirCuerposPendientes();
-	}
 }

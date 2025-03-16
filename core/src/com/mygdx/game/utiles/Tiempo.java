@@ -4,49 +4,48 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.TimeUtils;
 
-public abstract class Tiempo {
+public class Tiempo {
 
-	//LA CLASE Iluminacion.java ES BASTANTE IMPORTANTE CON RESPECTO AL TIEMPO Y ESO, QUIZAS LO QUE BUSQUES ESTA AHI
-	
-    private static long momentoDeInicioJuego;
-    private static long tiempoDelJuego; // Este es el tiempo total en juego
-    private static long empiezaGameplay = 0;
-    private static long segundos;
-    private static long tiempoPausado = 0;
-    private static long inicioPausa = 0;
-    private static boolean enPausa = false;
+    private long tiempoInicio;
+    private boolean contadorActivo;
 
-    // Metodo para inicializar el momento de inicio del juego
-    public static void setMomentoInicioJuego(long milis) {
-        momentoDeInicioJuego = milis;
+    // Constructor que inicializa el contador
+    public Tiempo() {
+        this.contadorActivo = false;
     }
 
-    // Devuelve los segundos totales desde que se abrio el juego
-    public static void contarSegundosJuegoAbierto() {
-        segundos = (TimeUtils.millis() - momentoDeInicioJuego) / 1000;
+    // Método para iniciar el conteo
+    public void iniciarContador() {
+        tiempoInicio = TimeUtils.nanoTime(); // Guardamos el tiempo de inicio en nanosegundos
+        contadorActivo = true;
     }
 
-    // Devuelve los segundos en los que el juego esta en estado de "no pausa"
-    public static void contarSegundos() {
-            if (empiezaGameplay == 0) empiezaGameplay = TimeUtils.millis(); // Inicializa el inicio del gameplay
-
-            // Si el estado del juego no es PAUSA
-
-                if (enPausa) {
-                    // Si esta saliendo de la pausa, sumar el tiempo que estuvo en pausa
-                    tiempoPausado += TimeUtils.millis() - inicioPausa;
-                    enPausa = false;
-                }
-                // Calcular el tiempo del juego activo, sin contar el tiempo pausado
-                tiempoDelJuego = ((TimeUtils.millis() - tiempoPausado) - empiezaGameplay) / 1000;
-                System.out.println(tiempoDelJuego + " segundos en el juego activo");
-                
-
+    // Método para obtener los segundos transcurridos
+    public long obtenerSegundos() {
+        if (!contadorActivo) {
+            throw new IllegalStateException("El contador no ha sido iniciado.");
+        }
+        
+        // Calcular el tiempo transcurrido en segundos (convertimos de nanosegundos a segundos)
+        return (TimeUtils.nanoTime() - tiempoInicio) / 1000000000; // Nanosegundos a segundos
     }
-    
-    public static long getSegundosEnEstadoJuego() {
-    	return tiempoDelJuego;
+
+    // Método para detener el contador
+    public void detenerContador() {
+        contadorActivo = false;
     }
+
+    // Método para reiniciar el contador
+    public void reiniciarContador() {
+        tiempoInicio = TimeUtils.nanoTime();
+        contadorActivo = true;
+    }
+
+    // Método para saber si el contador está activo
+    public boolean estaContando() {
+        return contadorActivo;
+    }
+
     
     public static void actorEsperar(final Actor actor, int tiempo) {
 	    // Añade una secuencia de acciones:

@@ -16,7 +16,7 @@ public class JuegoHUD extends ApplicationAdapter {
     private Skin skin;
 
     private Stage stage;
-
+    private Label labelTiempo, labelRonda;
     public JuegoHUD() {
     	create();
     }
@@ -36,8 +36,8 @@ public class JuegoHUD extends ApplicationAdapter {
 
         Table table2 = new Table();
 
-        label = new Label("Tiempo", skin, "titulo");
-        table2.add(label).padTop(10.0f).padBottom(10.0f);
+        labelTiempo = new Label("Tiempo", skin, "titulo");
+        table2.add(labelTiempo).padTop(10.0f).padBottom(10.0f);
 
         table2.row();
         table2.add().grow();
@@ -54,8 +54,8 @@ public class JuegoHUD extends ApplicationAdapter {
         table2.add(label);
 
         table2.row();
-        label = new Label("60", skin, "titulo");
-        table2.add(label);
+        labelRonda = new Label("60", skin, "titulo");
+        table2.add(labelRonda);
         table1.add(table2).pad(10.0f).align(Align.top);
         table.add(table1).grow();
         stage.addActor(table);
@@ -74,5 +74,13 @@ public class JuegoHUD extends ApplicationAdapter {
     public void dispose() {
         stage.dispose();
         skin.dispose();
+    }
+    
+    public Label getTiempo() {
+    	return labelTiempo;
+    }
+    
+    public Label getRonda() {
+    	return labelRonda;
     }
 }

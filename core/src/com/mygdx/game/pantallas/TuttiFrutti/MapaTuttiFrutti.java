@@ -3,7 +3,9 @@ package com.mygdx.game.pantallas.TuttiFrutti;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
+import com.mygdx.game.hud.JuegoHUD;
 import com.mygdx.game.pantallas.Mapa;
+import com.mygdx.game.pantallas.Menu;
 import com.mygdx.game.utiles.Recursos;
 import com.mygdx.game.utiles.Render;
 import com.mygdx.game.utiles.Tiempo;
@@ -15,8 +17,8 @@ public abstract class MapaTuttiFrutti extends Mapa implements Screen{
 	private Game g;
 
 	
-	public MapaTuttiFrutti(Game g, World w) {
-		super(w);
+	public MapaTuttiFrutti(Game g, World w, JuegoHUD hud) {
+		super(w,hud);
 		this.g = g;
 	}
 	
@@ -30,7 +32,6 @@ public abstract class MapaTuttiFrutti extends Mapa implements Screen{
 		mapa.draw(Render.batch);
 		Render.batch.end();
 		dibujarEnemigos();
-		Tiempo.contarSegundos();
 	}
 
 	@Override
@@ -51,10 +52,18 @@ public abstract class MapaTuttiFrutti extends Mapa implements Screen{
 
 	@Override
 	public void dispose() {
+		// Si necesitas detener o reiniciar el contador
+		t.detenerContador();
+		t.reiniciarContador();
 	}
 	
 	public void dibujarEnemigos() {
 		
+	}
+	
+	public void terminarRonda() {
+		this.dispose();
+		g.setScreen(new Menu());
 	}
 
 }
