@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.game.entidades.Jugador;
 import com.mygdx.game.entrada.EntradasJugador;
+import com.mygdx.game.hud.JuegoHUD;
 import com.mygdx.game.utiles.Recursos;
 import com.mygdx.game.utiles.Render;
 
@@ -17,6 +18,7 @@ public class Juego implements Screen{
 	private Game juego;
 	private Jugador j;
 	private EntradasJugador entradasJ;
+	private JuegoHUD jHUD;
 	
 	
 	//Box2d
@@ -40,6 +42,12 @@ public class Juego implements Screen{
 		camaraJugador.setToOrtho(false);
 		camaraJugador.zoom = .4f;
 		
+		camaraHud = new OrthographicCamera(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+		camaraHud.setToOrtho(false);
+		camaraHud.zoom = .4f;
+		
+		jHUD = new JuegoHUD();
+		
 		j = new Jugador(new Vector2(0,0), 100, world, camaraJugador);
 		entradasJ = new EntradasJugador(j);
 		
@@ -50,14 +58,28 @@ public class Juego implements Screen{
 	public void render(float delta) {
 	    world.step(delta, 6, 2); // Actualiza la física
 	    
+	    camaraHud.update();
+		Render.batch.setProjectionMatrix(camaraHud.combined);
+		jHUD.render();
+	    
 		camaraJugador.update();
 		Render.batch.setProjectionMatrix(camaraJugador.combined);
 	    j.actualizar(); // Ahora el jugador se mueve en cada frame
 	    j.dibujar();
+	    
+
+	    
+	    
 	}
 
 	@Override
 	public void resize(int width, int height) {
+		
+		camaraJugador.viewportWidth = width;
+		camaraJugador.viewportHeight = height;
+		camaraJugador.update();	
+		
+		jHUD.resize(width, height);
 	}
 
 	@Override
@@ -74,6 +96,7 @@ public class Juego implements Screen{
 
 	@Override
 	public void dispose() {
+		jHUD.dispose();
 	}
 
 }
