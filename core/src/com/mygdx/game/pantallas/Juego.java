@@ -7,9 +7,11 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.mygdx.game.entidades.Enemigo;
 import com.mygdx.game.entidades.Jugador;
 import com.mygdx.game.entrada.EntradasJugador;
 import com.mygdx.game.hud.JuegoHUD;
+import com.mygdx.game.proyectiles.ManejadorColisiones;
 import com.mygdx.game.utiles.Recursos;
 import com.mygdx.game.utiles.Render;
 
@@ -17,6 +19,7 @@ public class Juego implements Screen{
 	
 	private Game juego;
 	private Jugador j;
+	private Enemigo e;
 	private EntradasJugador entradasJ;
 	private JuegoHUD jHUD;
 	
@@ -36,6 +39,8 @@ public class Juego implements Screen{
 	@Override
 	public void show() {
 		this.world = new World(new Vector2(0,0), false);
+		world.setContactListener(new ManejadorColisiones());
+
 		
 		//camaras
 		camaraJugador = new OrthographicCamera(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
@@ -51,13 +56,17 @@ public class Juego implements Screen{
 		j = new Jugador(new Vector2(0,0), 100, world, camaraJugador);
 		entradasJ = new EntradasJugador(j);
 		
+		e=new Enemigo(new Vector2(64,64), 100, world);
+		
+		this.box2Debug = new Box2DDebugRenderer();
+		
 		Recursos.muxJuego.addProcessor(entradasJ);
 	}
 
 	@Override
 	public void render(float delta) {
 	    world.step(delta, 6, 2); // Actualiza la física
-	    
+	    box2Debug.render(world, camaraJugador.combined);
 	    camaraHud.update();
 		Render.batch.setProjectionMatrix(camaraHud.combined);
 		jHUD.render();
@@ -68,6 +77,8 @@ public class Juego implements Screen{
 	    j.dibujar();
 	    
 
+	    e.dibujar();
+	    Enemigo.destruirCuerposPendientes();
 	    
 	    
 	}

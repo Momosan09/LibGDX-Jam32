@@ -3,22 +3,50 @@ package com.mygdx.game.entidades;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.game.enums.Direcciones;
 import com.mygdx.game.utiles.Recursos;
+import com.mygdx.game.proyectiles.Proyectil;
+import java.util.ArrayList;
+import java.util.Iterator;
 import com.mygdx.game.utiles.Render;
 
 public class Jugador extends Entidad {
 
 	private OrthographicCamera camara;
+	private ArrayList<Proyectil> proyectiles = new ArrayList<>();
+
 	
     public Jugador(Vector2 posicion, float vida, World world, OrthographicCamera camara) {
         super(Recursos.JUGADOR_SPRITESHEET, posicion, vida, world);
         this.camara = camara;
+        
+        
+		// Crear el cuerpo del jugador
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(this.posicion.x,this.posicion.y);
+
+        body = world.createBody(bodyDef);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(6,2);
+        
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.filter.categoryBits = 0x0004; // Categoría del enemigo
+        fixtureDef.filter.maskBits = 0x0002; // Puede colisionar con proyectiles
+        
+        body.createFixture(fixtureDef);
+        shape.dispose();
     }
 
     public void actualizar() {
+        // Movimiento
         float movimientoX = 0;
         float movimientoY = 0;
 
@@ -39,12 +67,14 @@ public class Jugador extends Entidad {
                 direccionActual = Direcciones.DERECHA;
             }
 
-            // Si no se presiona ninguna tecla, el jugador se detiene
+            if (Gdx.input.isKeyJustPressed(Keys.SPACE)) { // Disparo con ESPACIO
+                disparar();
+            }
+
             if (movimientoX == 0 && movimientoY == 0) {
                 body.setLinearVelocity(0, 0);
                 direccionActual = Direcciones.QUIETO;
             } else {
-                // Ajuste para evitar velocidad mayor en diagonal
                 if (movimientoX != 0 && movimientoY != 0) {
                     movimientoX *= 0.7071f;
                     movimientoY *= 0.7071f;
@@ -52,11 +82,21 @@ public class Jugador extends Entidad {
                 body.setLinearVelocity(movimientoX, movimientoY);
             }
 
-            // Actualizar la posición del sprite con la física
             posicion.set(body.getPosition().x, body.getPosition().y + 14);
             movimientoCamara();
         }
+
+        // Actualizar proyectiles
+        Iterator<Proyectil> iter = proyectiles.iterator();
+        while (iter.hasNext()) {
+            Proyectil proyectil = iter.next();
+            proyectil.actualizar();
+            if (proyectil.estaDestruido()) {
+                iter.remove();
+            }
+        }
     }
+
     
 	private void movimientoCamara() {
 		if(camara != null) {
@@ -65,12 +105,43 @@ public class Jugador extends Entidad {
             camara.update();
 		}
 	}
+	
+	private void disparar() {
+	    Vector2 direccion = new Vector2(0, 0);
 
-    @Override
-    public void dibujar() {
-        super.dibujar();
-        Render.batch.begin();
-        alternarSprites(direccionActual).render();
-        Render.batch.end();
-    }
+	    switch (direccionActual) {
+	        case ARRIBA:
+	            direccion.set(0, 1);
+	            break;
+	        case ABAJO:
+	            direccion.set(0, -1);
+	            break;
+	        case IZQUIERDA:
+	            direccion.set(-1, 0);
+	            break;
+	        case DERECHA:
+	            direccion.set(1, 0);
+	            break;
+	        default:
+	            return;
+	    }
+
+	    Proyectil proyectil = new Proyectil(world, new Vector2(posicion.x, posicion.y), direccion);
+	    proyectiles.add(proyectil);
+	}
+
+
+	@Override
+	public void dibujar() {
+	    super.dibujar();
+	    Render.batch.begin();
+	    for (Proyectil proyectil : proyectiles) {
+	    	if(proyectil.getBody() != null) {	    		
+	        // Dibujar cada proyectil en su posición
+	        Render.batch.draw(new Texture(Recursos.PROYECTIL), proyectil.getPosicion().x-32, proyectil.getPosicion().y-32, 64,64);
+	    	}
+	    }
+	    Render.batch.end();
+	}
+
 }

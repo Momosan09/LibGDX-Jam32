@@ -20,7 +20,9 @@ public abstract class Entidad {
 	protected Direcciones direccionActual = Direcciones.QUIETO;
 	protected float velocidad = 1000;
 	protected boolean puedeMoverse = true;
+	protected boolean estaMuerto = false;
 	protected Animator animacionQuieto, animacionAbajo, animacionArriba, animacionDerecha, animacionIzquierda;
+	protected float dañoRecibido = 10;
 	
 	protected World world;
 	protected Body body;
@@ -30,28 +32,17 @@ public abstract class Entidad {
 		this.posicion = posicion;
 		this.vida = vida;
 		this.world = world;
-		
-		// Crear el cuerpo del jugador
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(this.posicion.x+16,this.posicion.y);
 
-        body = world.createBody(bodyDef);
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(6,2);
-        
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-        body.createFixture(fixtureDef);
-        shape.dispose();
-		
+
 		crearAnimaciones();
 	}
 	
 	public void dibujar() {
+		if(!estaMuerto) {			
 		Render.batch.begin();
 		alternarSprites(direccionActual).render();
 		Render.batch.end();
+		}
 	}
 	
 	public void movimiento(Direcciones dir) {
@@ -118,4 +109,19 @@ public abstract class Entidad {
 		}
 		return null;
 	}
+	
+
+
+	public void recibirDaño(float daño) {
+	    vida -= daño;
+	    if (vida <= 0) {
+	        morir();
+	    }
+	}
+
+	public void morir() {
+	    //world.destroyBody(body);
+	    estaMuerto = true;
+	}
+	
 }

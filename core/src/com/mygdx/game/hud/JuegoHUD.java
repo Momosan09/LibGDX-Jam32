@@ -36,7 +36,7 @@ public class JuegoHUD {
 
         Table table2 = new Table();
 
-        label = new Label("Tiempo", skin);
+        label = new Label("Tiempo", skin, "blanco");
         table2.add(label).padTop(10).padRight(50);
 
         table2.row();
